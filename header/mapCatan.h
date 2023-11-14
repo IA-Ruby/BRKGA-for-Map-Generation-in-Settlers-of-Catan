@@ -31,13 +31,17 @@ class MapCatan
             }
         };
         Tile* root = new Tile();
-        int verify(Tile* tile);
+        int verifyAdjTile(Tile* tile);
+        int verifyAdjNumber(Tile* tile);
+        int verifyProb();
+        float calcProb(int i);
     public:
         MapCatan();
         void setValues(vector<int> numbers, vector<string> types);
         int getResult();
         void printTypes();
         void printNumbers();
+        void printMap();
 };
 
 #endif

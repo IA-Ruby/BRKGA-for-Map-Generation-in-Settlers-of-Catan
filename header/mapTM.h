@@ -31,14 +31,18 @@ class MapTM
             }
         };
         Tile* root = new Tile();
-        int verify(Tile* tile);
+        int verifyAdj(Tile* tile);
         int verifyRiver();
         int verifyRiverTile(Tile* tile);
-        
+        int verifyAdjRiver(Tile* tile);
+        int verifyTerraforming(Tile* tile);
+        int verifyTerraformingTiles(Tile* tile, int a, int b);
+
     public:
         MapTM();
         void setValues(vector<int> types);
         int getResult();
+        void printMap();
 };
 
 #endif

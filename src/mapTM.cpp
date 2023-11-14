@@ -109,15 +109,28 @@ void MapTM::setValues(vector<int> types)
 
 int MapTM::getResult()
 {
-    int value = verifyRiver()*2;
+    const int req1 = 1;
+    const int req2 = 100;
+    const int req3 = 20;
+    const int req4 = 1;
+    
+    int value = verifyRiver() * req2;
 
     Tile* aux = root;
     Tile* aux2 = root;
 
     while(true)
     {
-        value += verify(aux2);
-            
+        if(aux2->type == 8)
+        {
+            value += (verifyAdjRiver(aux2) * req3);
+        } 
+        else
+        {
+            value += (verifyAdj(aux2) * req1);
+            value += (verifyTerraforming(aux2) * req4);
+        }
+
         if(aux2->right != NULL)
         { 
             aux2 = aux2->right;
@@ -137,34 +150,26 @@ int MapTM::getResult()
         }
     }
 
-    return value/2;
+    return value;
 }
 
-int MapTM::verify(Tile* tile)
+// REQ1
+
+int MapTM::verifyAdj(Tile* tile)
 {
-    int count = 0;
-    if(tile->type != 8)
-    {
-        if( tile->right    != NULL  &&  tile->right->type    == tile->type) count++;
-        if( tile->left     != NULL  &&  tile->left->type     == tile->type) count++;
-        if( tile->topRight != NULL  &&  tile->topRight->type == tile->type) count++;
-        if( tile->topLeft  != NULL  &&  tile->topLeft->type  == tile->type) count++;
-        if( tile->botRight != NULL  &&  tile->botRight->type == tile->type) count++;
-        if( tile->botLeft  != NULL  &&  tile->botLeft->type  == tile->type) count++;
+    if(tile->type != 8){
+    if( tile->right    != NULL  &&  tile->right->type    == tile->type) return 1; 
+    if( tile->left     != NULL  &&  tile->left->type     == tile->type) return 1;
+    if( tile->topRight != NULL  &&  tile->topRight->type == tile->type) return 1;
+    if( tile->topLeft  != NULL  &&  tile->topLeft->type  == tile->type) return 1;
+    if( tile->botRight != NULL  &&  tile->botRight->type == tile->type) return 1;
+    if( tile->botLeft  != NULL  &&  tile->botLeft->type  == tile->type) return 1;
+     return 0;
     }
-    else
-    {
-        int adjRiver = 0;
-        if( tile->right    != NULL && tile->right->type    == tile->type) adjRiver++;
-        if( tile->left     != NULL && tile->left->type     == tile->type) adjRiver++;
-        if( tile->topRight != NULL && tile->topRight->type == tile->type) adjRiver++;
-        if( tile->topLeft  != NULL && tile->topLeft->type  == tile->type) adjRiver++;
-        if( tile->botRight != NULL && tile->botRight->type == tile->type) adjRiver++;
-        if( tile->botLeft  != NULL && tile->botLeft->type  == tile->type) adjRiver++;
-        if( adjRiver == 0 || adjRiver > 3) count += 2;
-    }
-    return count;
+    return 0;
 }
+
+// REQ2
 
 int MapTM::verifyRiver()
 {
@@ -175,29 +180,9 @@ int MapTM::verifyRiver()
     {
         if(aux2->type == 8)
         {
-            int count = 1;
-            aux2->viwed = true;
-                
-            if( aux2->right != NULL && aux2->right->type == 8 && aux2->right->viwed == false)
-                count += verifyRiverTile(aux2->right);
-
-            if( aux2->left != NULL && aux2->left->type == 8 && aux2->left->viwed == false) 
-                count += verifyRiverTile(aux2->left);
-            
-            if( aux2->topRight != NULL && aux2->topRight->type == 8 && aux2->topRight->viwed == false) 
-                count += verifyRiverTile(aux2->topRight);
-
-            if( aux2->topLeft != NULL && aux2->topLeft->type == 8 && aux2->topLeft->viwed == false) 
-                count += verifyRiverTile(aux2->topLeft);
-
-            if( aux2->botRight != NULL && aux2->botRight->type == 8 && aux2->botRight->viwed == false) 
-                count += verifyRiverTile(aux2->botRight);
-
-            if( aux2->botLeft != NULL && aux2->botLeft->type == 8 && aux2->botLeft->viwed == false) 
-                count += verifyRiverTile(aux2->botLeft);
-            
+            int count = verifyRiverTile(aux2);
             if(count == 36) return 0;
-            return 20; 
+            return 1; 
         }
 
         if(aux2->right != NULL)
@@ -218,30 +203,114 @@ int MapTM::verifyRiver()
             aux2 = aux;
         }
     }
+    return 0;
 }
 
 int MapTM::verifyRiverTile(Tile* tile)
 {
     tile->viwed = true;
-    int aux = 1;
+    int count = 1;
 
     if( tile->right != NULL && tile->right->type == 8 && tile->right->viwed == false)
-        aux += verifyRiverTile(tile->right);
+        count += verifyRiverTile(tile->right);
 
     if( tile->left != NULL && tile->left->type == 8 && tile->left->viwed == false) 
-        aux += verifyRiverTile(tile->left);
+        count += verifyRiverTile(tile->left);
     
     if( tile->topRight != NULL && tile->topRight->type == 8 && tile->topRight->viwed == false) 
-        aux += verifyRiverTile(tile->topRight);
+        count += verifyRiverTile(tile->topRight);
 
     if( tile->topLeft != NULL && tile->topLeft->type == 8 && tile->topLeft->viwed == false) 
-        aux += verifyRiverTile(tile->topLeft);
+        count += verifyRiverTile(tile->topLeft);
 
     if( tile->botRight != NULL && tile->botRight->type == 8 && tile->botRight->viwed == false) 
-        aux += verifyRiverTile(tile->botRight);
+        count += verifyRiverTile(tile->botRight);
 
     if( tile->botLeft != NULL && tile->botLeft->type == 8 && tile->botLeft->viwed == false) 
-        aux += verifyRiverTile(tile->botLeft);
+        count += verifyRiverTile(tile->botLeft);
 
-    return aux;
+    return count;
+}
+
+// REQ3
+
+int MapTM::verifyAdjRiver(Tile* tile)
+{
+    int adjRiver = 0;
+    if( tile->right    != NULL && tile->right->type    == 8) adjRiver++;
+    if( tile->left     != NULL && tile->left->type     == 8) adjRiver++;
+    if( tile->topRight != NULL && tile->topRight->type == 8) adjRiver++;
+    if( tile->topLeft  != NULL && tile->topLeft->type  == 8) adjRiver++;
+    if( tile->botRight != NULL && tile->botRight->type == 8) adjRiver++;
+    if( tile->botLeft  != NULL && tile->botLeft->type  == 8) adjRiver++;
+    if( adjRiver == 0 || adjRiver > 3) return 1;
+    return 0;
+}
+
+// REQ4
+
+int MapTM::verifyTerraforming(Tile* tile)
+{
+    int type = tile->type;
+    
+    if(type == 8) printf("%d", type);
+    switch(type){
+        case 1: return verifyTerraformingTiles(tile, 2, 7);
+        case 2 ... 6: return verifyTerraformingTiles(tile, type-1, type+1);
+        case 7: return verifyTerraformingTiles(tile, 6, 1);
+    }
+    return 0;
+}
+
+int MapTM::verifyTerraformingTiles(Tile* tile, int a, int b)
+{
+    if( tile->right != NULL     && (tile->right->type    == a  ||  tile->right->type    == b)) return 0;
+    if( tile->left != NULL      && (tile->left->type     == a  ||  tile->left->type     == b)) return 0;
+    if( tile->topRight != NULL  && (tile->topRight->type == a  ||  tile->topRight->type == b)) return 0;
+    if( tile->topLeft != NULL   && (tile->topLeft->type  == a  ||  tile->topLeft->type  == b)) return 0;
+    if( tile->botRight != NULL  && (tile->botRight->type == a  ||  tile->botRight->type == b)) return 0;
+    if( tile->botLeft != NULL   && (tile->botLeft->type  == a  ||  tile->botLeft->type  == b)) return 0;
+    return 1;
+}
+
+void MapTM::printMap()
+{
+    int space = true;
+
+    Tile* aux = root;
+    Tile* aux2 = root;
+
+    while(true)
+    {
+        if(aux2->type == 8)
+        {
+            cout << " * ";
+        } 
+        else
+        {
+            cout << "[" << aux2->type << "]";
+        }
+
+        if(aux2->right != NULL)
+        { 
+            aux2 = aux2->right;
+        }
+        else
+        {   
+            cout << "\n";
+            if(space) cout << "  ";
+            space = !space;
+
+            if(aux->botLeft != NULL)
+            {
+                aux = aux->botLeft;
+            }
+            else if(aux->botRight != NULL)
+            {
+                aux = aux->botRight;
+            }
+            else break;
+            aux2 = aux;
+        }
+    }
 }

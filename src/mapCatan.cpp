@@ -109,15 +109,20 @@ void MapCatan::setValues(vector<int> numbers, vector<string> types)
 
 int MapCatan::getResult()
 {
-    int value = 0;
+    const int req1 = 1;
+    const int req2 = 5;
+    const int req3 = 1;
+
+    int value = verifyProb() * req2;
 
     Tile* aux = root;
     Tile* aux2 = root;
 
     while(true)
     {
-        value += verify(aux2);
-            
+        value += verifyAdjTile(aux2) * req1;
+        value += verifyAdjNumber(aux2) * req3; 
+
         if(aux2->right != NULL)
         { 
             aux2 = aux2->right;
@@ -140,27 +145,94 @@ int MapCatan::getResult()
     return value;
 }
 
-int MapCatan::verify(Tile* tile)
+//REQ1
+
+int MapCatan::verifyAdjTile(Tile* tile)
 {
-    int count = 0;
-    if(tile->right    != NULL  &&  tile->right->type    == tile->type) count++;
-    if(tile->left     != NULL  &&  tile->left->type     == tile->type) count++;
-    if(tile->topRight != NULL  &&  tile->topRight->type == tile->type) count++;
-    if(tile->topLeft  != NULL  &&  tile->topLeft->type  == tile->type) count++;
-    if(tile->botRight != NULL  &&  tile->botRight->type == tile->type) count++;
-    if(tile->botLeft  != NULL  &&  tile->botLeft->type  == tile->type) count++;
+    if(tile->right    != NULL  &&  tile->right->type    == tile->type) return 1;
+    if(tile->left     != NULL  &&  tile->left->type     == tile->type) return 1;
+    if(tile->topRight != NULL  &&  tile->topRight->type == tile->type) return 1;
+    if(tile->topLeft  != NULL  &&  tile->topLeft->type  == tile->type) return 1;
+    if(tile->botRight != NULL  &&  tile->botRight->type == tile->type) return 1;
+    if(tile->botLeft  != NULL  &&  tile->botLeft->type  == tile->type) return 1;
+    return 0;
+}
 
-    if(tile->number == 6 || tile->number == 8)
+// REQ2
+
+int MapCatan::verifyProb()
+{
+    float probGrain = 0.0;
+    float probLumber = 0.0;
+    float probWool = 0.0;
+    float probBrick = 0.0;
+    float probOre = 0.0;
+
+    Tile* aux = root;
+    Tile* aux2 = root;
+
+    while(true)
     {
-        if(tile->right != NULL    && (tile->right->number == 6    || tile->right->number == 8))    count++;
-        if(tile->left != NULL     && (tile->left->number == 6     || tile->left->number == 8))     count++;
-        if(tile->topRight != NULL && (tile->topRight->number == 6 || tile->topRight->number == 8)) count++;
-        if(tile->topLeft != NULL  && (tile->topLeft->number == 6  || tile->topLeft->number == 8))  count++;
-        if(tile->botRight != NULL && (tile->botRight->number == 6 || tile->botRight->number == 8)) count++;
-        if(tile->botLeft != NULL  && (tile->botLeft->number == 6  || tile->botLeft->number == 8))  count++;
-    }    
+        float prob = calcProb(aux2->number);
+        if(aux2->type == "G") probGrain += prob;
+        if(aux2->type == "L") probLumber += prob;
+        if(aux2->type == "W") probWool += prob;
+        if(aux2->type == "B") probBrick += prob;
+        if(aux2->type == "O") probOre += prob;
 
-    return count;
+        if(aux2->right != NULL)
+        { 
+            aux2 = aux2->right;
+        }
+        else
+        {
+            if(aux->botLeft != NULL)
+            {
+                aux = aux->botLeft;
+            }
+            else if(aux->botRight != NULL)
+            {
+                aux = aux->botRight;
+            }
+            else break;
+            aux2 = aux;
+        }
+    }
+
+    if((probGrain - probLumber < 1) && (probGrain - probLumber > -1) // Group 1
+        && (probGrain - probWool < 1) && (probGrain - probWool > -1)
+        && (probWool - probLumber < 1) && (probWool - probLumber > -1)
+
+        && (probOre - probBrick) < 1 && (probOre - probBrick > -1)) // Group 2
+            return 0;
+    return 1;
+        
+
+}
+
+float MapCatan::calcProb(int i){
+    if(i == 2 || i == 12) return 1/36;  // ~2,8%
+    if(i == 3 || i == 11) return 2/36;  // ~5,6%
+    if(i == 4 || i == 10) return 3/36;  // ~8,3%
+    if(i == 5 || i == 9)  return 4/36;  // ~11,1%
+    if(i == 6 || i == 8)  return 5/36;  // ~13,9%
+    return 0;
+}
+
+//REQ3
+
+int MapCatan::verifyAdjNumber(Tile* tile)
+{
+    
+    if(tile->number == 6 || tile->number == 8){
+        if(tile->right != NULL    && (tile->right->number == 6    || tile->right->number == 8))    return 1;
+        if(tile->left != NULL     && (tile->left->number == 6     || tile->left->number == 8))     return 1;
+        if(tile->topRight != NULL && (tile->topRight->number == 6 || tile->topRight->number == 8)) return 1;
+        if(tile->topLeft != NULL  && (tile->topLeft->number == 6  || tile->topLeft->number == 8))  return 1;
+        if(tile->botRight != NULL && (tile->botRight->number == 6 || tile->botRight->number == 8)) return 1;
+        if(tile->botLeft != NULL  && (tile->botLeft->number == 6  || tile->botLeft->number == 8))  return 1;
+    }
+    return 0;
 }
 
 void MapCatan::printTypes()
@@ -202,6 +274,36 @@ void MapCatan::printNumbers()
     {
         cout << aux2->number << ' ';
             
+        if(aux2->right != NULL)
+        { 
+            aux2 = aux2->right;
+        }
+        else
+        {
+            cout << '\n';
+            if(aux->botLeft != NULL)
+            {
+                aux = aux->botLeft;
+            }
+            else if(aux->botRight != NULL)
+            {
+                aux = aux->botRight;
+            }
+            else break;
+            aux2 = aux;
+        }
+    }
+}
+
+void MapCatan::printMap()
+{
+    Tile* aux = root;
+    Tile* aux2 = root;
+
+    while(true)
+    {
+        cout << "[" << aux2->number << ";" << aux2->type << "]";
+
         if(aux2->right != NULL)
         { 
             aux2 = aux2->right;
