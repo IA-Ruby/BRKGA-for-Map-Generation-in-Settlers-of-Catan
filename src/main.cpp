@@ -134,7 +134,7 @@ void matchingTM(IndividualTM &a, const IndividualTM &b)
         for(int j = 0; j < a.types.size(); j++){
             if(a.types[j] == b.types[i])
             {
-                swap(a.types[j], a.types[a.types.size()-i]);
+                swap(a.types[j], a.types[(a.types.size()-1)-i]);
                 break;
             }
         }
@@ -171,12 +171,13 @@ void heapSortTM(vector<IndividualTM>& t)
 int main()
 {
     srand(time(nullptr));
-    int popSize = 1000;
+    int popSize = 50000;
     int elite = popSize/10;
-    int mutation = popSize/10*8;
-    int numberMaps = 1;
+    int mutation = popSize/10*9;
+    int numberMaps = 30;
     float avrgTime = 0;
     int choice = 1;
+    int timeLimit = 300;
 
     while(choice == 1 || choice == 2)
     {
@@ -222,7 +223,7 @@ int main()
 
                     int oldScore = population[0].value;
                     int count = 0;
-                    while(population[0].value > 0 && (chrono::duration_cast<chrono::microseconds>(end - begin).count())/1000000.0 < 300)
+                    while(population[0].value > 0 && (chrono::duration_cast<chrono::microseconds>(end - begin).count())/1000000.0 < timeLimit)
                     {
                         count++;
                         for(int i = elite; i < popSize; i++)
@@ -315,7 +316,7 @@ int main()
                     
                     int oldScore = population[0].value;
                     int count = 0;
-                    while(population[0].value > 0 && (chrono::duration_cast<chrono::microseconds>(end - begin).count())/1000000.0 < 300)
+                    while(population[0].value > 0 && (chrono::duration_cast<chrono::microseconds>(end - begin).count())/1000000.0 < timeLimit)
                     {
                         count++;
                         for(int i = elite; i < popSize; i++)

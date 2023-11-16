@@ -109,12 +109,12 @@ void MapTM::setValues(vector<int> types)
 
 int MapTM::getResult()
 {
-    const int req1 = 1;
-    const int req2 = 100;
-    const int req3 = 20;
+    const int req1 = 100;
+    const int req2 = 1;
+    const int req3 = 10000;
     const int req4 = 1;
     
-    int value = verifyRiver() * req2;
+    int value = verifyRiver() * req3;
 
     Tile* aux = root;
     Tile* aux2 = root;
@@ -123,7 +123,7 @@ int MapTM::getResult()
     {
         if(aux2->type == 8)
         {
-            value += (verifyAdjRiver(aux2) * req3);
+            value += (verifyAdjRiver(aux2) * req2);
         } 
         else
         {
@@ -157,15 +157,12 @@ int MapTM::getResult()
 
 int MapTM::verifyAdj(Tile* tile)
 {
-    if(tile->type != 8){
     if( tile->right    != NULL  &&  tile->right->type    == tile->type) return 1; 
     if( tile->left     != NULL  &&  tile->left->type     == tile->type) return 1;
     if( tile->topRight != NULL  &&  tile->topRight->type == tile->type) return 1;
     if( tile->topLeft  != NULL  &&  tile->topLeft->type  == tile->type) return 1;
     if( tile->botRight != NULL  &&  tile->botRight->type == tile->type) return 1;
     if( tile->botLeft  != NULL  &&  tile->botLeft->type  == tile->type) return 1;
-     return 0;
-    }
     return 0;
 }
 
@@ -314,3 +311,4 @@ void MapTM::printMap()
         }
     }
 }
+
