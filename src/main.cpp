@@ -171,10 +171,10 @@ void heapSortTM(vector<IndividualTM>& t)
 int main()
 {
     srand(time(nullptr));
-    int popSize = 50000;
+    int popSize = 1000;
     int elite = popSize/10;
     int mutation = popSize/10*9;
-    int numberMaps = 30;
+    int numberMaps = 2;
     float avrgTime = 0;
     int choice = 1;
     int timeLimit = 300;
@@ -296,7 +296,8 @@ int main()
                 while(maps <= numberMaps)
                 {
                     chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-                    chrono::steady_clock::time_point end = std::chrono::steady_clock::now();;  
+                    chrono::steady_clock::time_point end = std::chrono::steady_clock::now(); 
+                    chrono::steady_clock::time_point timePassed = std::chrono::steady_clock::now(); 
 
                     vector<IndividualTM> population;
 
@@ -314,44 +315,61 @@ int main()
                     outputFile << "\n   (" << population[0].value << ", 0, "
                             << (chrono::duration_cast<chrono::microseconds>(end - begin).count()) /1000000.0 << "s)";
                     
-                    int oldScore = population[0].value;
+                    IndividualTM oldScore = population[0];
                     int count = 0;
                     while(population[0].value > 0 && (chrono::duration_cast<chrono::microseconds>(end - begin).count())/1000000.0 < timeLimit)
                     {
-                        count++;
-                        for(int i = elite; i < popSize; i++)
-                        {
-                            if(i < mutation)
+                        //resetAfterTime
+                        timePassed = std::chrono::steady_clock::now();
+                        if((chrono::duration_cast<chrono::microseconds>(timePassed - end).count())/1000000.0 < 60 
+                            && oldScore.value <= population[0].value){
+                            count++;
+                            for(int i = elite; i < popSize; i++)
                             {
-                                matchingTM(population[i], population[rand()%elite]);
-                                mapTM.setValues(population[i].types);
-                                population[i].value = mapTM.getResult();
+                                if(i < mutation)
+                                {
+                                    matchingTM(population[i], population[rand()%elite]);
+                                    mapTM.setValues(population[i].types);
+                                    population[i].value = mapTM.getResult();
+                                }
+                                else
+                                {
+                                    shuffleTM(population[i]);
+                                    mapTM.setValues(population[i].types);
+                                    population[i].value = mapTM.getResult();
+                                }
                             }
-                            else
-                            {
-                                shuffleTM(population[i]);
-                                mapTM.setValues(population[i].types);
-                                population[i].value = mapTM.getResult();
+                            heapSortTM(population);
+                        }else{
+                            if(oldScore.value > population[0].value){
+                                cout << "a";
+                                end = std::chrono::steady_clock::now();
+                                oldScore = population[0];
+                                outputFile << "\n   (" << oldScore.value << ", " << count << ", "
+                                    << (std::chrono::duration_cast<chrono::microseconds>(end - begin).count())/1000000.0 << "s)";
+                            }else{
+                                cout << "b";
+                                for(int i = 0; i < elite; i++){
+                                    shuffleTM(population[i]);
+                                    mapTM.setValues(population[i].types);
+                                    population[i].value = mapTM.getResult();
+                                }
+                                heapSortTM(population);
+                                cout << " Reset... ";
+                                end = std::chrono::steady_clock::now();
                             }
-                        }
-                        heapSortTM(population);
-                        end = std::chrono::steady_clock::now();
-                        if(oldScore > population[0].value){
-                            oldScore = population[0].value;
-                            outputFile << "\n   (" << oldScore << ", " << count << ", "
-                                << (chrono::duration_cast<chrono::microseconds>(end - begin).count()) /1000000.0 << "s)";
                         }
                     }
                     if(maps > 1){
-                        if(population[0].value < bestScore.value){
-                            bestScore = population[0];
+                        if(oldScore.value < bestScore.value){
+                            bestScore = oldScore;
                         }
-                    }else bestScore = population[0];
+                    }else bestScore = oldScore;
 
                     maps++;
                     end = std::chrono::steady_clock::now();
                     avrgTime += chrono::duration_cast<chrono::microseconds>(end - begin).count() /1000000.0; 
-                    outputFile << "\n\n[Points: " << population[0].value << " | Generation: " << count << " | "
+                    outputFile << "\n\n[Points: " << oldScore.value << " | Generation: " << count << " | "
                         << "Time: " << (chrono::duration_cast<chrono::microseconds>(end - begin).count()) /1000000.0  <<"s]\n\n";
 
                 }

@@ -109,19 +109,15 @@ void MapCatan::setValues(vector<int> numbers, vector<string> types)
 
 int MapCatan::getResult()
 {
-    const int req1 = 1;
-    const int req2 = 5;
-    const int req3 = 1;
-
-    int value = verifyProb() * req2;
+    int value = verifyProb();
 
     Tile* aux = root;
     Tile* aux2 = root;
 
     while(true)
     {
-        value += verifyAdjTile(aux2) * req1;
-        value += verifyAdjNumber(aux2) * req3; 
+        value += verifyAdjTile(aux2);
+        value += verifyAdjNumber(aux2); 
 
         if(aux2->right != NULL)
         { 

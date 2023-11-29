@@ -109,9 +109,9 @@ void MapTM::setValues(vector<int> types)
 
 int MapTM::getResult()
 {
-    const int req1 = 100;
+    const int req1 = 1;
     const int req2 = 1;
-    const int req3 = 10000;
+    const int req3 = 1;
     const int req4 = 1;
     
     int value = verifyRiver() * req3;
