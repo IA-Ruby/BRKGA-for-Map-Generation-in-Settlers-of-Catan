@@ -140,6 +140,18 @@ void matchingTM(IndividualTM &a, const IndividualTM &b)
         }
 }
 
+void matchingTM(IndividualTM &a, const IndividualTM &b)
+{
+    for(int i = 0; i < 25; i++)
+        for(int j = 0; j < a.types.size(); j++){
+            if(a.types[j] == b.types[i])
+            {
+                swap(a.types[j], a.types[(a.types.size()-1)-i]);
+                break;
+            }
+        }
+}
+
 void heapifyTM(vector<IndividualTM>& t, int n, int i)
 {
     int j = i*2+1;
@@ -317,11 +329,11 @@ int main()
                     
                     IndividualTM oldScore = population[0];
                     int count = 0;
-                    while(population[0].value > 0 && (chrono::duration_cast<chrono::microseconds>(end - begin).count())/1000000.0 < timeLimit)
+                    while(oldScore.value > 0 && (chrono::duration_cast<chrono::microseconds>(end - begin).count())/1000000.0 < timeLimit)
                     {
                         //resetAfterTime
                         timePassed = std::chrono::steady_clock::now();
-                        if((chrono::duration_cast<chrono::microseconds>(timePassed - end).count())/1000000.0 < 60 
+                        if((chrono::duration_cast<chrono::microseconds>(timePassed - end).count())/1000000.0 < 120 
                             && oldScore.value <= population[0].value){
                             count++;
                             for(int i = elite; i < popSize; i++)
@@ -342,20 +354,17 @@ int main()
                             heapSortTM(population);
                         }else{
                             if(oldScore.value > population[0].value){
-                                cout << "a";
                                 end = std::chrono::steady_clock::now();
                                 oldScore = population[0];
                                 outputFile << "\n   (" << oldScore.value << ", " << count << ", "
                                     << (std::chrono::duration_cast<chrono::microseconds>(end - begin).count())/1000000.0 << "s)";
                             }else{
-                                cout << "b";
                                 for(int i = 0; i < elite; i++){
                                     shuffleTM(population[i]);
                                     mapTM.setValues(population[i].types);
                                     population[i].value = mapTM.getResult();
                                 }
                                 heapSortTM(population);
-                                cout << " Reset... ";
                                 end = std::chrono::steady_clock::now();
                             }
                         }
