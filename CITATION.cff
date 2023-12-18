@@ -11,3 +11,5 @@ authors:
     family-names: Mendes
     name-suffix: Filho
     email: eudesmendesfilho@gmail.com
+repository-code: >-
+  https://github.com/IA-Ruby/BRKGA-for-Map-Generation-in-Settlers-of-Catan-and-Terra-Mystica
